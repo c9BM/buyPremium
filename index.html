@@ -19,47 +19,71 @@
             border: 2px solid #333;
             border-radius: 10px;
             padding: 20px;
-            width: 400px;
+            width: 420px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             text-align: center;
         }
         .header {
             font-size: 1.4em;
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             border-bottom: 1px solid #ccc;
             padding-bottom: 10px;
+            color: #d00;
         }
         .info {
             text-align: left;
-            margin: 15px 0;
-            font-size: 1em;
+            margin: 12px 0;
+            font-size: 1.02em;
+        }
+        .label {
+            font-weight: bold;
+            color: #333;
         }
         .total {
-            font-size: 1.5em;
+            font-size: 1.55em;
             font-weight: bold;
             color: #d00;
-            margin: 20px 0;
+            margin: 25px 0 15px 0;
+            padding-top: 15px;
+            border-top: 2px dashed #ccc;
         }
         .note {
-            font-size: 0.9em;
+            font-size: 0.92em;
             color: #555;
+            margin-top: 10px;
+        }
+        .highlight {
+            color: #0066cc;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
     <div class="box">
         <div class="header">THỜI GIAN MUA X ĐÃ TRÔI QUA</div>
-        <div class="info">Từ ngày: <strong>17/06/2025 00:00:00</strong></div>
-        <div class="info">Đến nay: <strong id="current-date">Đang tải...</strong></div>
+        
+        <div class="info"><span class="label">Từ ngày mua ban đầu:</span> <strong>17/06/2025 00:00:00</strong></div>
+        <div class="info"><span class="label">Gia hạn cuối cùng:</span> <strong class="highlight">16/02/2026</strong></div>
+        <div class="info"><span class="label">Thời hạn sử dụng đến:</span> <strong>16/03/2026</strong></div>
         <div class="info">&nbsp;</div>
-        <div class="total" id="total-time">Tổng thời gian: <span>4>Đang tính...</span></div>
-        <div class="note" id="note-time">(Tương đương: Đang tính...)</div>
+        <div class="info"><span class="label">Đến nay:</span> <strong id="current-date">Đang tải...</strong></div>
+        
+        <div class="total" id="total-time">
+            Tổng thời gian: <span>Đang tính...</span>
+        </div>
+        
+        <div class="note" id="note-time">
+            (Cập nhật realtime theo giờ Việt Nam - UTC+7)
+        </div>
     </div>
 
     <script>
-        // Ngày bắt đầu mua X (00:00:00 giờ Việt Nam)
+        // Ngày bắt đầu mua X cũ (giữ nguyên)
         const startDate = new Date('2025-06-17T00:00:00');
+
+        // Ngày gia hạn cuối cùng (16/02/2026)
+        const extensionDate = new Date('2026-02-16T00:00:00');
 
         function updateTime() {
             // Lấy thời gian Việt Nam (UTC+7)
@@ -67,19 +91,18 @@
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
             const vietnamTime = new Date(utc + (7 * 3600000));
 
-            // Format ngày hiện tại (dd/mm/yyyy hh:mm:ss)
+            // Format ngày hiện tại
             const dd = String(vietnamTime.getDate()).padStart(2, '0');
             const mm = String(vietnamTime.getMonth() + 1).padStart(2, '0');
             const yyyy = vietnamTime.getFullYear();
             const hh = String(vietnamTime.getHours()).padStart(2, '0');
             const mi = String(vietnamTime.getMinutes()).padStart(2, '0');
             const ss = String(vietnamTime.getSeconds()).padStart(2, '0');
-            const currentStr = `${dd}/${mm}/${yyyy} ${hh}:${mi}:${ss}`;
+            const currentStr = `\( {dd}/ \){mm}/${yyyy} \( {hh}: \){mi}:${ss}`;
 
-            // Cập nhật ngày hiện tại
             document.getElementById('current-date').textContent = currentStr;
 
-            // Tính khoảng cách
+            // Tính thời gian đã trôi qua từ ngày bắt đầu mua
             const diffMs = vietnamTime - startDate;
             const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
             const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
@@ -87,13 +110,11 @@
             const diffSeconds = Math.floor((diffMs % (1000 * 60)) / 1000);
 
             // Cập nhật tổng thời gian
-            document.querySelector('#total-time span').textContent = `${diffDays} ngày, ${diffHours} giờ, ${diffMinutes} phút, ${diffSeconds} giây`;
-
-            // Cập nhật note
-            document.getElementById('note-time').textContent = `(Cập nhật realtime theo giờ Việt Nam - UTC+7)`;
+            document.querySelector('#total-time span').textContent = 
+                `${diffDays} ngày, ${diffHours} giờ, ${diffMinutes} phút, ${diffSeconds} giây`;
         }
 
-        // Cập nhật ngay lập tức và mỗi giây
+        // Khởi chạy
         updateTime();
         setInterval(updateTime, 1000);
     </script>
